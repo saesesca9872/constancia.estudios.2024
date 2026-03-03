@@ -9,23 +9,23 @@
 <style>
     body {
         margin: 0;
-        background-color: #e0e0e0; /* fondo gris */
+        background-color: #808080; /* gris */
         display: flex;
         justify-content: center;
     }
 
     #pdf-container {
         width: 100%;
-        max-width: 900px; /* ancho máximo en computadora */
-        padding: 20px 0;
+        max-width: 1000px;
+        padding: 30px 0;
     }
 
     canvas {
-        width: 100% !important;
-        height: auto !important;
-        display: block;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        width: 100%;
+        height: auto;
+        margin-bottom: 25px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+        background: white;
     }
 </style>
 </head>
@@ -35,7 +35,7 @@
 <div id="pdf-container"></div>
 
 <script>
-const url = 'saes.constancia.pdf'; // ← CAMBIA ESTO
+const url = 'saes.constancia.pdf'; // CAMBIA ESTO
 
 const pdfjsLib = window['pdfjs-dist/build/pdf'];
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -47,20 +47,23 @@ pdfjsLib.getDocument(url).promise.then(function(pdf) {
 
         pdf.getPage(pageNum).then(function(page) {
 
-            const scale = 1.5;
-            const viewport = page.getViewport({ scale: scale });
+            const containerWidth = document.getElementById('pdf-container').clientWidth;
+            const viewport = page.getViewport({ scale: 1 });
+
+            const scale = containerWidth / viewport.width;
+            const scaledViewport = page.getViewport({ scale: scale });
 
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
 
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
+            canvas.height = scaledViewport.height;
+            canvas.width = scaledViewport.width;
 
             document.getElementById('pdf-container').appendChild(canvas);
 
             page.render({
                 canvasContext: context,
-                viewport: viewport
+                viewport: scaledViewport
             });
 
         });
