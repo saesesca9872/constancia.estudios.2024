@@ -1,45 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Documento</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <style>
-    body { margin: 0; }
-    canvas {
-      display: block;
-      margin: 0 auto;
+<meta charset="UTF-8">
+<title>Documento</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<style>
+    body {
+        margin: 0;
+        background-color: #e0e0e0; /* fondo gris */
+        display: flex;
+        justify-content: center;
     }
-  </style>
+
+    #pdf-container {
+        width: 100%;
+        max-width: 900px; /* ancho máximo en computadora */
+        padding: 20px 0;
+    }
+
+    canvas {
+        width: 100% !important;
+        height: auto !important;
+        display: block;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+</style>
 </head>
+
 <body>
-  <canvas id="pdf-render"></canvas>
 
-  <script>
-    const url = 'saes.constancia.pdf';
+<div id="pdf-container"></div>
 
-    const pdfjsLib = window['pdfjs-dist/build/pdf'];
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+<script>
+const url = 'saes.constancia.pdf'; // ← CAMBIA ESTO
 
-    const loadingTask = pdfjsLib.getDocument(url);
-    loadingTask.promise.then(function(pdf) {
-      pdf.getPage(1).then(function(page) {
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale: scale });
+const pdfjsLib = window['pdfjs-dist/build/pdf'];
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const canvas = document.getElementById('pdf-render');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+pdfjsLib.getDocument(url).promise.then(function(pdf) {
 
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport
-        };
-        page.render(renderContext);
-      });
-    });
-  </script>
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+
+        pdf.getPage(pageNum).then(function(page) {
+
+            const scale = 1.5;
+            const viewport = page.getViewport({ scale: scale });
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            document.getElementById('pdf-container').appendChild(canvas);
+
+            page.render({
+                canvasContext: context,
+                viewport: viewport
+            });
+
+        });
+
+    }
+
+});
+</script>
+
 </body>
 </html>
